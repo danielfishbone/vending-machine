@@ -41,9 +41,9 @@ flag = True
 
 
 videonames_defaut  = ['1.mp4','2.mp4','3.mp4','4.mp4','5.mp4','6.mp4','7.mp4','8.mp4','9.mp4','10.mp4']
-videonames_happy_defaut = ['1h.mp4','2h.mp4','3h.mp4','4h.mp4','5h.mp4','6h.mp4','7h.mp4','8h.mp4','9h.mp4','10h.mp4']
-imagenames_defaut  = ['1.png','2.png','3.png','4.png','5.png','6.png','7.png','8.png','9.png','10.png']
-imagenames_happy_defaut  = ['1h.png','2h.png','3h.png','4h.png','5h.png','6h.png','7h.png','8h.png','9h.png','10h.png']
+videonames_happy_defaut = ['h1.mp4','h2.mp4','h3.mp4','h4.mp4','h5.mp4','h6.mp4','h7.mp4','h8.mp4','h9.mp4','h10.mp4']
+imagenames_defaut  = ['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg','6.jpg','7.jpg','8.jpg','9.jpg','10.jpg']
+imagenames_happy_defaut  = ['h1.jpg','h2.jpg','h3.jpg','h4.jpg','h5.jpg','h6.jpg','h7.jpg','h8.jpg','h9.jpg','h10.jpg']
 
 
 videoPath =[]
@@ -58,11 +58,7 @@ image_h = []
 config_flag = False
 
 #******************************************Defining all call back functions*****************************************
-pygame.mouse.set_visible(False)
-startup = pygame.image.load('Assets/startup.jpg')
-startup = pygame.transform.scale(startup, (screensize))
-screen.blit(startup,(0,0))  
-pygame.display.update()
+
 
 
 def get_seconds():
@@ -92,17 +88,26 @@ def on_disconnect(client,userdata,rc):
 print(get_seconds())
 
 def download_resources(_base_url,_base_dir,_imagenames_defaut,_videonames_defaut,_imagenames_happy_defaut,_videonames_happy_defaut):
-    for i in range():
-        url = _base_url + _videonames_defaut[i]
-        wget.download(url, (_base_dir) + _videonames_defaut[i] )
-        url = _base_url + _videonames_happy_defaut[i]
-        wget.download(url, (_base_dir) + _videonames_happy_defaut[i] )
-        url = _base_url + _imagenames_defaut[i]
-        wget.download(url, (_base_dir) + _imagenames_defaut[i] )
-        url = _base_url + _imagenames_happy_defaut[i]
-        wget.download(url, (_base_dir) + _imagenames_happy_defaut[i] )
+    global items
+    for i in range(items):
+        try:
+            url = _base_url + _videonames_defaut[i]
+            print(url)
+            wget.download(url, (_base_dir) + _videonames_defaut[i] )
+            url = _base_url + _videonames_happy_defaut[i]
+            wget.download(url, (_base_dir) + _videonames_happy_defaut[i] )
+            url = _base_url + _imagenames_defaut[i]
+            wget.download(url, (_base_dir) + _imagenames_defaut[i] )
+            url = _base_url + _imagenames_happy_defaut[i]
+            wget.download(url, (_base_dir) + _imagenames_happy_defaut[i] )
+        except:
+            pass    
 
 def compare_asset(_imageNames,_videoNames,_imageHnames,_videoHnames):
+    if exists('Assets'):
+        pass
+    else:
+        return False
     for _image in _imageNames:
         if exists(base_dir+_image):
             file = urllib.request.urlopen(base_url + _image )
@@ -140,12 +145,12 @@ def configure():
     global image_h_display_time 
     global broker
     global config_flag
-    # print('configuring')
-    # print("happy_hr_end",happy_hr_end)
-    # print("happy_hr_begin",happy_hr_begin)
-    # print("base_url",base_url)
-    # print("image_display_time",image_display_time)
-    # print("image_h_display_time",image_h_display_time)
+    print('configuring')
+    print("happy_hr_end",happy_hr_end)
+    print("happy_hr_begin",happy_hr_begin)
+    print("base_url",base_url)
+    print("image_display_time",image_display_time)
+    print("image_h_display_time",image_h_display_time)
     
     config['DEFAULT'] = {
                       'happy_hr_begin': happy_hr_begin,
@@ -301,8 +306,16 @@ def get_sync(image_display_time,_video_duration,imagef,videof):
             
 get_configuration()
 
-broker = "test.mosquitto.org"
-port = 1883
+download_resources(base_url,base_dir,imagenames_defaut,videonames_defaut,imagenames_happy_defaut,videonames_happy_defaut)
+
+pygame.mouse.set_visible(False)
+startup = pygame.image.load('Assets/startup.jpg')
+startup = pygame.transform.scale(startup, (screensize))
+screen.blit(startup,(0,0))  
+pygame.display.update()
+
+# broker = "test.mosquitto.org"
+# port = 1883
 
 client = mqtt.Client("pythonq")
 client.on_subscribe = on_subscribe
