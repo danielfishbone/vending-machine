@@ -1,0 +1,10 @@
+sudo apt-get update -y
+sudo apt-get install -y libmediainfo-dev
+pip install pygame
+pip install requests
+pip install wget
+pip install configparser
+pip install paho-mqtt
+pip install ffpyplayer
+pip install pymediainfo
+
