@@ -6,7 +6,6 @@ from os.path import exists
 import datetime
 import math
 from time import sleep
-# import configparser
 import wget
 import urllib.request
 import os
