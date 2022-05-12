@@ -1,9 +1,0 @@
-[DEFAULT]
-happy_hr_begin = 47000
-happy_hr_end = 50000
-interval_time = 42
-interval_time_happy_hour = 120
-base_url = https//:
-base_dir = Assets/
-broker = test.mosquitto.org
-
