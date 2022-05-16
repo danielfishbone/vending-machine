@@ -1,8 +1,6 @@
-import pygame
 import configparser
 import paho.mqtt.client as mqtt
 from pymediainfo import MediaInfo
-from ffpyplayer.player import MediaPlayer
 from os.path import exists 
 import datetime
 import math
@@ -11,9 +9,9 @@ import wget
 import urllib.request
 import os
 from errno import ENOENT
+import vlc
 
 
-pygame.init()
 config = configparser.ConfigParser()
 black = (0,0,0)
 
@@ -28,11 +26,7 @@ broker = "test.mosquitto.org"
 port = 1883
 
 #*********************************************************************************************
-wininfo = pygame.display.Info()
-screensize = (wininfo.current_w, wininfo.current_h)
-screensize = (900, 600)
- 
-screen = pygame.display.set_mode((screensize),pygame.NOFRAME)
+media_player = vlc.MediaPlayer()
 #************************************Pygame Settings ******************************************
 video_duration = []
 video_h_duration=[]
@@ -114,11 +108,11 @@ def compare_asset(_base_url,base_dir,_imageNames,_videoNames,_imageHnames,_video
         except:
                 pass  
     if exists(base_dir+startup):  
-        Startup = pygame.image.load('Assets/Startup.jpg')
-        Startup = pygame.transform.scale(Startup, (screensize))
-        screen.blit(Startup,(0,0))  
-        pygame.display.update()           
-            
+        # Startup = pygame.image.load('Assets/Startup.jpg')
+        # Startup = pygame.transform.scale(Startup, (screensize))
+        # screen.blit(Startup,(0,0))  
+        # pygame.display.update()   
+        playvid('Assets/Startup.jpg',False)            
     for _image in _imageNames:
         if exists(base_dir+_image):
             try:
@@ -320,43 +314,66 @@ def get_seek(timeT,_image,_image_display_time,_video,_video_duration):
 
                 return remaining_time,_count,video_flag
 
-def playvid(path,surf = screen, seek_time =0):
-    
-    if exists(path):
-        info = MediaInfo.parse(path).video_tracks[0]
-        _video = MediaPlayer(path)
-        
-        active = True 
-        duration = info.duration
-        frames = 0
-        frame_delay = 1 / float(info.frame_rate)
-        image = pygame.Surface((0, 0))
-        _video.set_size(900, 650)
-        sleep(0.2)
-        vid_time = _video.get_pts()
-        if (vid_time + seek_time) < duration and active:
-            _video.seek(seek_time)
-            if seek_time < 0:
-                while (vid_time + seek_time < frames * frame_delay):
-                    frames -= 1
-        while _video.get_pts() > frames * frame_delay:
-            frame, val = _video.get_frame()
-            frames += 1
-        while active:
-            frame, val = _video.get_frame()
-            if val == "eof":
-                active = False
-                _video.close_player()
-            elif frame != None:
-                image = pygame.image.frombuffer(frame[0].to_bytearray()[0], frame[0].get_size(), "RGB")       
-                surf.blit(image, (0,0))       
-                pygame.display.update()
-                sleep(val)
-                # pygame.time.wait(int(val))
-                
-    else:
-        pass
 
+##########################################
+
+
+
+
+
+def playvid(path,_VideoFlag =True,start_time=0.1 ):
+    start_time = start_time*1000
+    media = vlc.Media(path)
+    media_player.set_media(media)
+    media_player.set_fullscreen(True)
+    media_player.play()
+   
+
+    sleep(.1)
+    if _VideoFlag:
+        media_player.set_time(int(start_time))
+
+        while media_player.get_state() != vlc.State.Ended:
+            
+            media_player.set_fullscreen(True)
+
+# def playvid(path,surf = screen, seek_time =0):
+    
+#     if exists(path):
+#         info = MediaInfo.parse(path).video_tracks[0]
+#         _video = MediaPlayer(path)
+        
+#         active = True 
+#         duration = info.duration
+#         frames = 0
+#         frame_delay = 1 / float(info.frame_rate)
+#         image = pygame.Surface((0, 0))
+#         _video.set_size(900, 650)
+#         sleep(0.2)
+#         vid_time = _video.get_pts()
+#         if (vid_time + seek_time) < duration and active:
+#             _video.seek(seek_time)
+#             if seek_time < 0:
+#                 while (vid_time + seek_time < frames * frame_delay):
+#                     frames -= 1
+#         while _video.get_pts() > frames * frame_delay:
+#             frame, val = _video.get_frame()
+#             frames += 1
+#         while active:
+#             frame, val = _video.get_frame()
+#             if val == "eof":
+#                 active = False
+#                 _video.close_player()
+#             elif frame != None:
+#                 image = pygame.image.frombuffer(frame[0].to_bytearray()[0], frame[0].get_size(), "RGB")       
+#                 surf.blit(image, (0,0))       
+#                 pygame.display.update()
+#                 sleep(val)
+#                 # pygame.time.wait(int(val))
+                
+#     else:
+#         pass
+##################################################################
 def happy_hour():
     t0 = get_seconds()
     hflag = True
@@ -399,24 +416,28 @@ def get_sync(image_display_time,_video_duration,imagef,videof,flagP=False):
         print('***********************************************************************')
 
     if flag :
-        playvid(videoPath[current],screen,rtime)
+        playvid(videoPath[current],True,rtime)
         flag = False
     else :
-        pic = pygame.image.load(imagePath[current])
-        pic = pygame.transform.scale(pic, (screensize))
-        # screen.fill(black)
-        screen.blit(pic,(0,0))  
-        pygame.display.update()     
+        playvid(imagePath[current],False)
+        # pic = pygame.image.load(imagePath[current]).convert()
+        # pic = pygame.transform.scale(pic, (screensize))
+        # screen.blit(pic,(0,0))  
+        # pygame.display.update()     
         sleep(rtime)
         flag =True
         current += 1
 
-pygame.mouse.set_visible(False)
+# pygame.mouse.set_visible(False)
 if exists('Assets/Startup.jpg'):
-    Startup = pygame.image.load('Assets/Startup.jpg')
-    Startup = pygame.transform.scale(Startup, (screensize))
-    screen.blit(Startup,(0,0))  
-    pygame.display.update()           
+    playvid("Assets/Startup.jpg",False)
+    # Startup = pygame.image.load('Assets/Startup.jpg')
+    # Startup = pygame.transform.scale(Startup, (screensize))
+    # screen.blit(Startup,(0,0))  
+
+    # pygame.display.update()   
+
+
 get_configuration()
 sleep(1)
 compare_asset(base_url,base_dir,imagenames_defaut,videonames_defaut,imagenames_happy_defaut,videonames_happy_defaut)
@@ -451,16 +472,16 @@ current=0
 for i in range (len(videoPath)): 
     info = MediaInfo.parse(videoPath[i]).video_tracks[0]
     video_duration[i] = info.duration/1000
-for i in range (len(image)):
-    image[i] = pygame.image.load(imagePath[i])
-    image[i] = pygame.transform.scale(image[i], (screensize))
+# for i in range (len(image)):
+#     image[i] = pygame.image.load(imagePath[i])
+#     image[i] = pygame.transform.scale(image[i], (screensize))
 
 for i in range (len(videoPath_happy)):
     info = MediaInfo.parse(videoPath_happy[i]).video_tracks[0]
     video_h_duration[i] = info.duration/1000
-for i in range (len(image_h)):
-    image_h[i] = pygame.image.load(imagePath_happy[i])
-    image_h[i] = pygame.transform.scale(image_h[i], (screensize))
+# for i in range (len(image_h)):
+#     image_h[i] = pygame.image.load(imagePath_happy[i])
+#     image_h[i] = pygame.transform.scale(image_h[i], (screensize))
  
 client.loop_start()
 client.subscribe(url_top)
