@@ -45,11 +45,8 @@ imagenames_happy_defaut  = ['h1.jpg','h2.jpg','h3.jpg','h4.jpg','h5.jpg','h6.jpg
 videoPath =[]
 videoPath_happy=[]
 imagePath= []
-imagePath_happy=[]# for i in range (len(image_h)):
-#     image_h[i] = pygame.image.load(imagePath_happy[i])
-#     image_h[i] = pygame.transform.scale(image_h[i], (screensize))
+imagePath_happy=[]
 
-# video = []
 image = []
 video_h = []
 image_h = []
@@ -89,8 +86,8 @@ def compare_asset(_base_url,base_dir,_imageNames,_videoNames,_imageHnames,_video
     if exists(base_dir+startup):
             try:
                 file = urllib.request.urlopen(base_url + startup )
-                local_file = os.path.getsize(base_dir + startup)
-                if local_file != file.length():
+                local_file = int(os.path.getsize(base_dir + startup))
+                if local_file != int(file.length()):
                     try:
                         os.remove(base_dir+startup)
                         url = _base_url + startup
@@ -110,10 +107,7 @@ def compare_asset(_base_url,base_dir,_imageNames,_videoNames,_imageHnames,_video
         except:
                 pass  
     if exists(base_dir+startup):  
-        # Startup = pygame.image.load('Assets/Startup.jpg')
-        # Startup = pygame.transform.scale(Startup, (screensize))
-        # screen.blit(Startup,(0,0))  
-        # pygame.display.update()   
+
         playvid('Assets/Startup.jpg',False)            
     for _image in _imageNames:
         if exists(base_dir+_image):
@@ -316,13 +310,6 @@ def get_seek(timeT,_image,_image_display_time,_video,_video_duration):
 
                 return remaining_time,_count,video_flag
 
-
-##########################################
-
-
-
-
-
 def playvid(path,_VideoFlag =True,start_time=0 ):
     start_time = start_time*1000
     media = vlc.Media(path)
@@ -340,6 +327,8 @@ def playvid(path,_VideoFlag =True,start_time=0 ):
             
             media_player.set_fullscreen(True)
 
+        media_player.stop()
+
 
 def happy_hour():
     t0 = get_seconds()
@@ -350,10 +339,12 @@ def happy_hour():
         hflag = False
     return hflag        
 
-def get_sync(image_display_time,_video_duration,imagef,videof,flagP=False):
+def get_sync(_image_display_time,_video_duration,imagef,videof,flagP=False):
     global current 
     global flag
     global imagePath
+    global happy_hr_begin
+    
     total_video_time=0
     t0 = get_seconds()
     for i in range(len(_video_duration)):
@@ -361,19 +352,19 @@ def get_sync(image_display_time,_video_duration,imagef,videof,flagP=False):
 
     
     if happy_hour():
-        total_time = total_video_time + (len(imagef)*image_display_time)
+        total_time = total_video_time + (len(imagef)*_image_display_time)
         number_of_loops  = (t0-happy_hr_begin)/total_time   
         current_loop_time = (number_of_loops-math.floor(number_of_loops)) * total_time
         
     else:
-        total_time = total_video_time + (len(imagef)*image_display_time)
+        total_time = total_video_time + (len(imagef)*_image_display_time)
         number_of_loops  = t0/total_time   
         current_loop_time = (number_of_loops-math.floor(number_of_loops)) * total_time
   
-    rtime,current,flag = get_seek(current_loop_time,imagef,image_display_time,videof,_video_duration)
+    rtime,current,flag = get_seek(current_loop_time,imagef,_image_display_time,videof,_video_duration)
     if flagP:
         print('***********************************************************************')
-        print("image time length :",(len(imagef)*image_display_time))
+        print("image time length :",(len(imagef)*_image_display_time))
         print("total_video_time: ", total_video_time)
         print('seek params: ',rtime,current,flag)
         print('num of loops: ',number_of_loops)
@@ -383,10 +374,11 @@ def get_sync(image_display_time,_video_duration,imagef,videof,flagP=False):
         print('***********************************************************************')
 
     if flag :
-        playvid(videoPath[current],True,rtime)
+        playvid(videof[current],True,rtime)
         flag = False
     else :
-        playvid(imagePath[current],False)  
+
+        playvid(imagef[current],False)  
         sleep(rtime)
         flag =True
         current += 1
@@ -437,7 +429,8 @@ for i in range(items):
         image_h.append(None)      
 
 current=0
-
+print(videoPath_happy)
+print(imagePath_happy)
 for i in range (len(videoPath)): 
     info = MediaInfo.parse(videoPath[i]).video_tracks[0]
     video_duration[i] = info.duration/1000
