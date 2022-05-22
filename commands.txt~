@@ -7,5 +7,4 @@ pip install configparser
 pip install paho-mqtt
 pip install ffpyplayer
 pip install pymediainfo
-pip install python-vlc 
 

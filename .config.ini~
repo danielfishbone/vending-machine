@@ -1,8 +1,8 @@
 [DEFAULT]
-happy_hr_begin = 3600
-happy_hr_end = 4600
-interval_time = 15
-interval_time_happy_hour = 10
+happy_hr_begin = 0
+happy_hr_end = 50000
+interval_time = 42
+interval_time_happy_hour = 120
 base_url = https://loketautomaat.nl/media1/
 base_dir = Assets/
 broker = test.mosquitto.org
