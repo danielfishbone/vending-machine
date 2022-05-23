@@ -30,7 +30,22 @@ broker = "test.mosquitto.org"
 port = 1883
 
 #*********************************************************************************************
-media_player = vlc.MediaPlayer()
+player = vlc.MediaPlayer()
+pygame.init()
+screen_size = pygame.display.Info()
+screen_h = screen_size.current_h #hieght of current screen
+screen_w = screen_size.current_w #width of current screen
+
+#comment out the following lines to go full screen
+# screen_h = 768
+# screen_w = 1399
+
+#comment out the following line and uncomment the next to remove frame 
+screen = pygame.display.set_mode((screen_w,screen_h),pygame.RESIZABLE)
+# screen = pygame.display.set_mode((screen_w,screen_h),pygame.NOFRAME)
+win_id = pygame.display.get_wm_info()['window']
+pygame.mixer.quit()
+
 #************************************Pygame Settings ******************************************
 video_duration = []
 video_h_duration=[]
@@ -404,30 +419,30 @@ def get_seek(timeT,_image,_image_display_time,_video,_video_duration):
                 return remaining_time,_count,video_flag
 
 def playvid(path,start_time=0):
+    
     _VideoFlag =False
     if int(start_time)>0:
         _VideoFlag=True
-    pygame.init()
-    screen_size = pygame.display.Info()
-    screen_h = screen_size.current_h #hieght of current screen
-    screen_w = screen_size.current_w #width of current screen
+    # pygame.init()
+    # screen_size = pygame.display.Info()
+    # screen_h = screen_size.current_h #hieght of current screen
+    # screen_w = screen_size.current_w #width of current screen
 
-    #comment out the following lines to go full screen
-    # screen_h = 768
-    # screen_w = 1399
+    # #comment out the following lines to go full screen
+    # # screen_h = 768
+    # # screen_w = 1399
 
-    #comment out the following line and uncomment the next to remove frame 
-    screen = pygame.display.set_mode((screen_w,screen_h),pygame.RESIZABLE)
-    # screen = pygame.display.set_mode((screen_w,screen_h),pygame.NOFRAME)
-    win_id = pygame.display.get_wm_info()['window']
-    pygame.mixer.quit()
+    # #comment out the following line and uncomment the next to remove frame 
+    # screen = pygame.display.set_mode((screen_w,screen_h),pygame.RESIZABLE)
+    # # screen = pygame.display.set_mode((screen_w,screen_h),pygame.NOFRAME)
+    # win_id = pygame.display.get_wm_info()['window']
+    # pygame.mixer.quit()
+    # vlcInstance = vlc.Instance()
+    # media = vlcInstance.media_new(path)
+
+    # player = vlcInstance.media_player_new()
     pygame.mouse.set_visible(False)
-
-    vlcInstance = vlc.Instance()
-    media = vlcInstance.media_new(path)
-
-    player = vlcInstance.media_player_new()
-    
+    media = vlc.Media(path)
     player.set_xwindow(win_id)
     player.set_media(media)
     
@@ -515,7 +530,7 @@ print ('image_h_display_time',image_h_display_time)
 print ('broker',broker)
 
 sleep(1)
-compare_asset(base_url,base_dir,imagenames_defaut,videonames_defaut,imagenames_happy_defaut,videonames_happy_defaut)
+# compare_asset(base_url,base_dir,imagenames_defaut,videonames_defaut,imagenames_happy_defaut,videonames_happy_defaut)
 
 
 client = mqtt.Client("client4155")
