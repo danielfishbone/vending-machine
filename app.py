@@ -530,7 +530,7 @@ print ('image_h_display_time',image_h_display_time)
 print ('broker',broker)
 
 sleep(1)
-# compare_asset(base_url,base_dir,imagenames_defaut,videonames_defaut,imagenames_happy_defaut,videonames_happy_defaut)
+compare_asset(base_url,base_dir,imagenames_defaut,videonames_defaut,imagenames_happy_defaut,videonames_happy_defaut)
 
 
 client = mqtt.Client("client4155")
